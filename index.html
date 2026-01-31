@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Catálogo de Productos</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="main-page">
+        <header>
+            <h1>Catálogo de Productos</h1>
+            <div class="search-container">
+                <input type="text" id="search-input" placeholder="Buscar productos...">
+                <button id="search-btn">Buscar</button>
+            </div>
+        </header>
+
+        <main>
+            <div id="products-container" class="products-grid">
+            </div>
+            <div id="loading">Cargando productos...</div>
+        </main>
+    </div>
+
+    <div id="detail-page" class="hidden">
+        <header>
+            <button id="back-btn">← Volver</button>
+            <h1>Detalle del Producto</h1>
+        </header>
+
+        <main class="detail-container">
+            <div class="detail-content">
+                <div class="detail-image">
+                    <img id="detail-img" src="" alt="Producto">
+                </div>
+                <div class="detail-info">
+                    <h2 id="detail-title"></h2>
+                    <p class="detail-price" id="detail-price"></p>
+                    <p class="detail-brand"><strong>Marca:</strong> <span id="detail-brand"></span></p>
+                    <p class="detail-category"><strong>Categoría:</strong> <span id="detail-category"></span></p>
+                    <p class="detail-rating"><strong>Rating:</strong> <span id="detail-rating"></span> ⭐</p>
+                    <div class="detail-description">
+                        <h3>Descripción</h3>
+                        <p id="detail-description"></p>
+                    </div>
+                    <div class="detail-reviews">
+                        <h3>Opiniones de clientes</h3>
+                        <div id="reviews-container"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
