@@ -1,152 +1,167 @@
-const API_URL = 'https://dummyjson.com/products';
-const PRODUCTS_LIMIT = 12; 
+// Configuración
+const URL_API = 'https://dummyjson.com/products';
+const LIMITE_PRODUCTOS = 12; // Límite de productos a mostrar
 
-let allProducts = [];
-let currentProduct = null;
+// Estado de la aplicación
+let todosLosProductos = [];
+let productoActual = null;
 
-const mainPage = document.getElementById('main-page');
-const detailPage = document.getElementById('detail-page');
-const productsContainer = document.getElementById('products-container');
-const loadingElement = document.getElementById('loading');
-const searchInput = document.getElementById('search-input');
-const searchBtn = document.getElementById('search-btn');
-const backBtn = document.getElementById('back-btn');
+// Elementos del DOM
+const paginaPrincipal = document.getElementById('main-page');
+const paginaDetalle = document.getElementById('detail-page');
+const contenedorProductos = document.getElementById('products-container');
+const elementoCargando = document.getElementById('loading');
+const inputBusqueda = document.getElementById('search-input');
+const botonBuscar = document.getElementById('search-btn');
+const botonVolver = document.getElementById('back-btn');
 
+// Inicializar la aplicación
 document.addEventListener('DOMContentLoaded', () => {
-    loadProducts();
-    setupEventListeners();
+    cargarProductos();
+    configurarEventos();
 });
 
-function setupEventListeners() {
-    searchBtn.addEventListener('click', handleSearch);
-    searchInput.addEventListener('keypress', (e) => {
+// Configurar eventos
+function configurarEventos() {
+    botonBuscar.addEventListener('click', manejarBusqueda);
+    inputBusqueda.addEventListener('keypress', (e) => {
         if (e.key === 'Enter') {
-            handleSearch();
+            manejarBusqueda();
         }
     });
-    backBtn.addEventListener('click', showMainPage);
+    botonVolver.addEventListener('click', mostrarPaginaPrincipal);
 }
 
-async function loadProducts() {
+// Cargar productos desde la API
+async function cargarProductos() {
     try {
-        loadingElement.style.display = 'block';
-        productsContainer.innerHTML = '';
+        elementoCargando.style.display = 'block';
+        contenedorProductos.innerHTML = '';
 
-        const response = await fetch(`${API_URL}?limit=${PRODUCTS_LIMIT}`);
-        const data = await response.json();
+        const respuesta = await fetch(`${URL_API}?limit=${LIMITE_PRODUCTOS}`);
+        const datos = await respuesta.json();
         
-        allProducts = data.products;
-        displayProducts(allProducts);
+        todosLosProductos = datos.products;
+        mostrarProductos(todosLosProductos);
         
-        loadingElement.style.display = 'none';
+        elementoCargando.style.display = 'none';
     } catch (error) {
         console.error('Error al cargar productos:', error);
-        loadingElement.textContent = 'Error al cargar los productos. Por favor, intenta de nuevo.';
+        elementoCargando.textContent = 'Error al cargar los productos. Por favor, intenta de nuevo.';
     }
 }
 
-function displayProducts(products) {
-    productsContainer.innerHTML = '';
+// Mostrar productos en tarjetas
+function mostrarProductos(productos) {
+    contenedorProductos.innerHTML = '';
     
-    if (products.length === 0) {
-        productsContainer.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px;">No se encontraron productos.</p>';
+    if (productos.length === 0) {
+        contenedorProductos.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 40px;">No se encontraron productos.</p>';
         return;
     }
 
-    products.forEach(product => {
-        const card = createProductCard(product);
-        productsContainer.appendChild(card);
+    productos.forEach(producto => {
+        const tarjeta = crearTarjetaProducto(producto);
+        contenedorProductos.appendChild(tarjeta);
     });
 }
 
-function createProductCard(product) {
-    const card = document.createElement('div');
-    card.className = 'product-card';
-    card.onclick = () => showProductDetail(product);
+// Crear tarjeta de producto
+function crearTarjetaProducto(producto) {
+    const tarjeta = document.createElement('div');
+    tarjeta.className = 'product-card';
+    tarjeta.onclick = () => mostrarDetalleProducto(producto);
 
-    card.innerHTML = `
-        <img src="${product.thumbnail}" alt="${product.title}" class="product-image" onerror="this.src='https://via.placeholder.com/280x200?text=Sin+Imagen'">
+    tarjeta.innerHTML = `
+        <img src="${producto.thumbnail}" alt="${producto.title}" class="product-image" onerror="this.src='https://via.placeholder.com/280x200?text=Sin+Imagen'">
         <div class="product-info">
-            <h3 class="product-title">${product.title}</h3>
-            <p class="product-price">$${product.price.toFixed(2)}</p>
-            <p class="product-category">${product.category}</p>
-            <p class="product-rating">Rating: ${product.rating}</p>
+            <h3 class="product-title">${producto.title}</h3>
+            <p class="product-price">$${producto.price.toFixed(2)}</p>
+            <p class="product-category">${producto.category}</p>
+            <p class="product-rating">Rating: ${producto.rating}</p>
         </div>
     `;
 
-    return card;
+    return tarjeta;
 }
 
-function showProductDetail(product) {
-    currentProduct = product;
+// Mostrar detalle del producto
+function mostrarDetalleProducto(producto) {
+    productoActual = producto;
 
-    document.getElementById('detail-img').src = product.images[0] || product.thumbnail;
-    document.getElementById('detail-img').alt = product.title;
-    document.getElementById('detail-title').textContent = product.title;
-    document.getElementById('detail-price').textContent = `$${product.price.toFixed(2)}`;
-    document.getElementById('detail-brand').textContent = product.brand || 'No especificada';
-    document.getElementById('detail-category').textContent = product.category;
-    document.getElementById('detail-rating').textContent = product.rating;
-    document.getElementById('detail-description').textContent = product.description;
+    // Actualizar información del producto
+    document.getElementById('detail-img').src = producto.images[0] || producto.thumbnail;
+    document.getElementById('detail-img').alt = producto.title;
+    document.getElementById('detail-title').textContent = producto.title;
+    document.getElementById('detail-price').textContent = `$${producto.price.toFixed(2)}`;
+    document.getElementById('detail-brand').textContent = producto.brand || 'No especificada';
+    document.getElementById('detail-category').textContent = producto.category;
+    document.getElementById('detail-rating').textContent = producto.rating;
+    document.getElementById('detail-description').textContent = producto.description;
 
-    displayReviews(product.reviews || []);
+    // Mostrar opiniones
+    mostrarOpiniones(producto.reviews || []);
 
-    mainPage.classList.add('hidden');
-    detailPage.classList.remove('hidden');
+    // Cambiar de página
+    paginaPrincipal.classList.add('hidden');
+    paginaDetalle.classList.remove('hidden');
     window.scrollTo(0, 0);
 }
 
-function displayReviews(reviews) {
-    const reviewsContainer = document.getElementById('reviews-container');
-    reviewsContainer.innerHTML = '';
+// Mostrar opiniones
+function mostrarOpiniones(opiniones) {
+    const contenedorOpiniones = document.getElementById('reviews-container');
+    contenedorOpiniones.innerHTML = '';
 
-    if (reviews.length === 0) {
-        reviewsContainer.innerHTML = '<p style="color: #999;">No hay opiniones disponibles para este producto.</p>';
+    if (opiniones.length === 0) {
+        contenedorOpiniones.innerHTML = '<p style="color: #999;">No hay opiniones disponibles para este producto.</p>';
         return;
     }
 
-    reviews.forEach(review => {
-        const reviewElement = document.createElement('div');
-        reviewElement.className = 'review-item';
-        reviewElement.innerHTML = `
+    opiniones.forEach(opinion => {
+        const elementoOpinion = document.createElement('div');
+        elementoOpinion.className = 'review-item';
+        elementoOpinion.innerHTML = `
             <div class="review-header">
-                <span class="review-name">${review.reviewerName}</span>
-                <span class="review-rating">${review.rating}</span>
+                <span class="review-name">${opinion.reviewerName}</span>
+                <span class="review-rating">${opinion.rating} </span>
             </div>
-            <p class="review-comment">${review.comment}</p>
+            <p class="review-comment">${opinion.comment}</p>
             <p style="font-size: 12px; color: #999; margin-top: 8px;">
-                ${new Date(review.date).toLocaleDateString('es-ES')}
+                ${new Date(opinion.date).toLocaleDateString('es-ES')}
             </p>
         `;
-        reviewsContainer.appendChild(reviewElement);
+        contenedorOpiniones.appendChild(elementoOpinion);
     });
 }
 
-function showMainPage() {
-    detailPage.classList.add('hidden');
-    mainPage.classList.remove('hidden');
+// Volver a la página principal
+function mostrarPaginaPrincipal() {
+    paginaDetalle.classList.add('hidden');
+    paginaPrincipal.classList.remove('hidden');
     window.scrollTo(0, 0);
 }
 
-async function handleSearch() {
-    const searchTerm = searchInput.value.trim().toLowerCase();
+// Manejar búsqueda
+async function manejarBusqueda() {
+    const terminoBusqueda = inputBusqueda.value.trim().toLowerCase();
 
-    if (searchTerm === '') {
-        displayProducts(allProducts);
+    if (terminoBusqueda === '') {
+        mostrarProductos(todosLosProductos);
         return;
     }
 
     try {
-        loadingElement.style.display = 'block';
-        productsContainer.innerHTML = '';
+        elementoCargando.style.display = 'block';
+        contenedorProductos.innerHTML = '';
 
-        const response = await fetch(`${API_URL}/search?q=${searchTerm}&limit=${PRODUCTS_LIMIT}`);
-        const data = await response.json();
+        const respuesta = await fetch(`${URL_API}/search?q=${terminoBusqueda}&limit=${LIMITE_PRODUCTOS}`);
+        const datos = await respuesta.json();
         
-        displayProducts(data.products);
-        loadingElement.style.display = 'none';
+        mostrarProductos(datos.products);
+        elementoCargando.style.display = 'none';
     } catch (error) {
         console.error('Error en la búsqueda:', error);
-        loadingElement.textContent = 'Error al buscar productos.';
+        elementoCargando.textContent = 'Error al buscar productos.';
     }
 }
